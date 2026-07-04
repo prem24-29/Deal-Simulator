@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sources & Uses - An Integrated M&A Decision Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy:#1F3864; --blue:#2E5F8A; --steel:#4A7BAB; --green:#375623;
+  --red:#C00000; --amber:#7F6000; --grid:#D0DCF0; --bg:#F2F5FB;
+  --surface:#FFFFFF; --border:#B8CCE4; --text:#1A2A3A; --muted:#5A6A7A;
+  --mono:"Courier New",Courier,monospace; --sans:"Segoe UI",system-ui,sans-serif;
+  --display:Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);font-family:var(--sans);color:var(--text);}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--navy);border-bottom:2px solid var(--steel);
+  display:flex;align-items:center;padding:0 40px;height:52px;gap:32px;}
+.nav-logo{font-family:var(--display);font-size:15px;color:#fff;font-weight:700;margin-right:auto;white-space:nowrap;}
+nav a{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:#8BAED0;text-decoration:none;transition:color 0.15s;white-space:nowrap;}
+nav a:hover{color:#fff;}
+
+/* HERO */
+.hero{background:var(--navy);background-image:linear-gradient(rgba(208,220,240,0.08) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(208,220,240,0.08) 1px,transparent 1px);background-size:40px 40px;
+  padding:80px 40px 64px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--steel),var(--green),var(--steel));}
+.hero-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--steel);text-transform:uppercase;margin-bottom:20px;}
+.hero-thesis{font-family:var(--display);font-size:clamp(28px,4vw,52px);font-weight:700;color:#fff;line-height:1.15;max-width:800px;margin-bottom:24px;}
+.hero-thesis span{color:#8BAED0;}
+.hero-sub{font-size:16px;color:#8BAED0;max-width:640px;line-height:1.6;margin-bottom:36px;}
+.hero-deal{display:inline-flex;align-items:center;gap:12px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);padding:10px 20px;font-family:var(--mono);font-size:11px;color:#C9D9F0;letter-spacing:1px;}
+.hero-deal span{color:var(--steel);}
+
+/* LENS STRIP */
+.lens-strip{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:3px solid var(--navy);}
+.lens{padding:20px 24px;border-right:1px solid var(--border);background:var(--surface);}
+.lens:last-child{border-right:none;}
+.lens-tool{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:2px 8px;border-radius:2px;display:inline-block;margin-bottom:8px;}
+.lens-tool.xl{background:#E8F5E9;color:#375623;} .lens-tool.pbi{background:#E3EEFF;color:#1F3864;}
+.lens-tool.tab{background:#FFF3E0;color:#7F4500;} .lens-tool.html{background:#FCE4D6;color:#C00000;}
+.lens-name{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.lens-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+
+/* SECTIONS */
+.section{max-width:1200px;margin:0 auto;padding:64px 40px;}
+.section-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--steel);margin-bottom:8px;}
+.section-title{font-family:var(--display);font-size:32px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.section-tool-badge{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:2px;margin-bottom:16px;}
+.section-body{font-size:15px;color:var(--muted);line-height:1.7;max-width:720px;margin-bottom:32px;}
+
+/* EXHIBIT */
+.exhibit-frame{border:1px solid var(--border);border-top:3px solid var(--navy);background:var(--surface);overflow:hidden;}
+.exhibit-label{background:var(--navy);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;}
+.exhibit-label span{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:#8BAED0;}
+.exhibit-inner{padding:24px 32px;}
+
+/* EXCEL STATS */
+.excel-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.excel-stat{background:var(--bg);border:1px solid var(--border);padding:14px 16px;}
+.excel-stat-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.excel-stat-val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--navy);}
+
+/* TABS */
+.tab-nav{display:flex;border-bottom:2px solid var(--border);margin-bottom:0;}
+.tab-btn{font-family:var(--mono);font-size:10px;padding:8px 16px;border:1px solid var(--border);
+  border-bottom:none;background:var(--bg);color:var(--muted);cursor:pointer;
+  margin-right:2px;margin-bottom:-2px;transition:all 0.15s;letter-spacing:1px;}
+.tab-btn:hover{background:var(--surface);color:var(--navy);}
+.tab-btn.active{background:var(--surface);color:var(--navy);font-weight:700;border-bottom:2px solid var(--surface);}
+.tab-content{display:none;padding:20px 0;}
+.tab-content.active{display:block;}
+
+/* DATA TABLE */
+.dt{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+.dt th{background:var(--navy);color:#fff;padding:7px 12px;text-align:left;font-weight:400;letter-spacing:1px;font-size:9px;}
+.dt th.r{text-align:right;}
+.dt td{padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text);}
+.dt tr:nth-child(even) td{background:var(--bg);}
+.dt tr:hover td{background:#EEF3FC;}
+.dt td.r{text-align:right;font-weight:700;color:var(--navy);}
+.dt td.neg{text-align:right;font-weight:700;color:var(--red);}
+.dt td.pos{text-align:right;font-weight:700;color:var(--green);}
+.dt td.amb{text-align:right;font-weight:700;color:var(--amber);}
+.dt td.muted{color:var(--muted);}
+.sec-div{background:var(--bg);color:var(--navy);font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 12px;border-bottom:1px solid var(--border);font-weight:700;}
+
+/* S&U two-col */
+.su-two{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.su-lbl{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid;}
+.su-lbl.u{color:var(--blue);border-color:var(--blue);}
+.su-lbl.s{color:var(--green);border-color:var(--green);}
+.su-check{margin-top:12px;padding:8px 12px;background:#EBF3E8;border:1px solid var(--green);font-family:var(--mono);font-size:11px;color:var(--green);}
+
+.dl-btn{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;
+  font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+  padding:12px 24px;text-decoration:none;border:none;cursor:pointer;margin-top:24px;transition:background 0.15s;}
+.dl-btn:hover{background:var(--blue);}
+
+/* PBI SECTION */
+.pbi-shell{background:var(--surface);border:1px solid var(--border);overflow:hidden;}
+.pbi-topbar{background:#0078D4;padding:0 24px;height:48px;display:flex;align-items:center;justify-content:space-between;}
+.pbi-topbar strong{font-size:13px;font-weight:600;color:#fff;}
+.pbi-topbar span{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:1px;}
+.pbi-slicers{background:#f3f6fa;border-bottom:1px solid #dde3ee;padding:14px 24px;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-end;}
+.pbi-sl-wrap{display:flex;flex-direction:column;min-width:140px;}
+.pbi-sl-label{font-size:10px;color:#555;margin-bottom:4px;}
+.pbi-sl-val{font-size:11px;font-weight:600;color:#0078D4;margin-top:3px;}
+input.pbi-range{width:100%;height:3px;accent-color:#0078D4;cursor:pointer;}
+.pbi-kpis{display:grid;grid-template-columns:repeat(5,1fr);background:#dde3ee;gap:0;}
+.pbi-kpi{background:#fff;padding:14px 18px;border-right:1px solid #dde3ee;text-align:center;}
+.pbi-kpi:last-child{border-right:none;}
+.pbi-kpi-label{font-size:10px;color:#888;margin-bottom:6px;}
+.pbi-kpi-val{font-size:20px;font-weight:700;color:#0078D4;}
+.pbi-kpi-val.red{color:#C00000;} .pbi-kpi-val.grn{color:#107C10;}
+.pbi-charts{background:#f3f6fa;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;}
+.pbi-chart-card{background:#fff;border:1px solid #dde3ee;padding:16px;}
+.pbi-chart-title{font-size:11px;font-weight:600;color:#333;margin-bottom:12px;}
+
+/* RESET BUTTON */
+.chart-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.reset-btn{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 8px;border:1px solid var(--border);background:var(--bg);
+  color:var(--muted);cursor:pointer;transition:all 0.15s;}
+.reset-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+.pbi-chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.pbi-reset-btn{font-size:9px;padding:2px 8px;border:1px solid #dde3ee;background:#f3f6fa;
+  color:#888;cursor:pointer;transition:all 0.15s;}
+.pbi-reset-btn:hover{background:#0078D4;color:#fff;border-color:#0078D4;}
+
+/* TABLEAU */
+.tab-embed-wrap{background:var(--surface);border:1px solid var(--border);overflow:hidden;}
+
+/* SIMULATOR */
+.sim-section{background:var(--surface);}
+#sim-inline{background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),
+  linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px;}
+.sim-main{max-width:1400px;margin:0 auto;padding:32px 40px;display:grid;grid-template-columns:300px 1fr;gap:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--navy);padding:20px;}
+.panel-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--navy);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.input-group{margin-bottom:14px;}
+.input-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.input-label span{font-size:11px;color:var(--muted);}
+.input-label .val{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--navy);background:var(--bg);padding:1px 6px;border:1px solid var(--border);}
+input[type=range]{width:100%;height:4px;accent-color:var(--navy);cursor:pointer;}
+.scenario-btns{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.scenario-btns button{flex:1;min-width:60px;padding:6px 4px;font-family:var(--mono);font-size:9px;
+  letter-spacing:1px;border:1px solid var(--border);background:var(--bg);color:var(--navy);cursor:pointer;transition:all 0.15s;}
+.scenario-btns button:hover,.scenario-btns button.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.right-col{display:flex;flex-direction:column;gap:20px;}
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);}
+.kpi{background:var(--surface);padding:14px 16px;text-align:center;}
+.kpi-label{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.kpi-value{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--navy);line-height:1;}
+.kpi-value.neg{color:var(--red);} .kpi-value.pos{color:var(--green);}
+.kpi-unit{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:3px;}
+.su-container{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--navy);padding:20px;}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+/* LEV */
+.lev-bar-bg{height:24px;background:var(--bg);border:1px solid var(--border);position:relative;overflow:hidden;}
+.lev-bar-fill{height:100%;transition:width 0.4s ease;}
+.lev-bar-threshold{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:2;}
+.lev-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px;}
+.status-badge{display:inline-block;padding:3px 10px;font-family:var(--mono);font-size:10px;letter-spacing:1px;border-radius:2px;margin-top:8px;}
+.status-safe{background:#EBF3E8;color:var(--green);border:1px solid var(--green);}
+.status-breach{background:#FCE4D6;color:var(--red);border:1px solid var(--red);}
+.status-watch{background:#FFF2CC;color:var(--amber);border:1px solid var(--amber);}
+
+/* HEATMAP */
+table.heatmap{border-collapse:collapse;font-family:var(--mono);font-size:9px;width:100%;}
+table.heatmap th{background:var(--navy);color:#fff;padding:4px 6px;text-align:center;font-weight:400;letter-spacing:1px;}
+table.heatmap td{padding:4px 6px;text-align:center;border:1px solid var(--border);}
+table.heatmap tr td:first-child{background:var(--bg);color:var(--navy);font-weight:700;}
+.current-cell{outline:2px solid var(--amber)!important;outline-offset:-2px;font-weight:700!important;}
+
+/* FLOW */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);}
+.flow-step{padding:24px 20px;border-right:1px solid var(--border);}
+.flow-step:last-child{border-right:none;}
+.flow-num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--border);margin-bottom:8px;}
+.flow-tool{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--steel);margin-bottom:6px;}
+.flow-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+
+footer{background:var(--navy);padding:32px 40px;text-align:center;border-top:3px solid var(--steel);}
+footer p{font-family:var(--mono);font-size:10px;color:#5A7A9A;letter-spacing:1.5px;line-height:2;}
+
+@media(max-width:900px){
+  .sim-main{grid-template-columns:1fr;padding:16px;}
+  .kpi-strip{grid-template-columns:repeat(3,1fr);}
+  .charts-grid{grid-template-columns:1fr;}
+  .lens-strip{grid-template-columns:1fr 1fr;}
+  .flow{grid-template-columns:1fr 1fr;}
+  .pbi-charts{grid-template-columns:1fr;}
+  .pbi-kpis{grid-template-columns:repeat(3,1fr);}
+  .su-two{grid-template-columns:1fr;}
+  nav a{display:none;}
+  .section{padding:40px 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Sources &amp; Uses</div>
+  <a href="#model">The Model</a>
+  <a href="#desk">Desk View</a>
+  <a href="#boardroom">Boardroom</a>
+  <a href="#simulator">Simulator</a>
+  <a href="#flow">Data Flow</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Sources &amp; Uses - An Integrated M&amp;A Decision Platform</div>
+  <h1 class="hero-thesis">The same deal,<br><span>viewed through four lenses.</span></h1>
+  <p class="hero-sub">One hypothetical acquisition. Four tools, each doing the job it is actually best at - not interchangeably. The toolchain itself is the argument.</p>
+  <div class="hero-deal">
+    <span>Acquirer</span> Kotak Mahindra Bank Ltd &nbsp;×&nbsp; <span>Target</span> IDFC First Bank Ltd
+    &nbsp;|&nbsp; Hypothetical / Illustrative &nbsp;|&nbsp; FY2026 Actuals
+  </div>
+</section>
+
+<!-- LENS STRIP -->
+<div class="lens-strip">
+  <div class="lens"><div class="lens-tool xl">Excel</div><div class="lens-name">The Model</div><div class="lens-desc">Structured, auditable deal arithmetic. Named ranges, live formulas, sensitivity tables. The engine everything else connects to.</div></div>
+  <div class="lens"><div class="lens-tool pbi">Power BI</div><div class="lens-name">The Desk View</div><div class="lens-desc">Internal analytics layer. What-If slicers, EPS bridge, accretion/dilution trajectory. Built for the deal team, not the board.</div></div>
+  <div class="lens"><div class="lens-tool tab">Tableau</div><div class="lens-name">The Boardroom View</div><div class="lens-desc">Polished storytelling. One message per view, generous whitespace, no clutter. Built for a 60-second board read.</div></div>
+  <div class="lens"><div class="lens-tool html">HTML / JS</div><div class="lens-name">Run It Live</div><div class="lens-desc">No licence. No login. No Excel. Runs in any browser. Reimplements the same formulas natively - always available.</div></div>
+</div>
+
+<!-- MODULE A -->
+<div id="model"><div class="section">
+  <div class="section-eyebrow">Module A</div>
+  <h2 class="section-title">The Model</h2>
+  <div class="section-tool-badge" style="background:#E8F5E9;color:#375623;">Built in Microsoft Excel</div>
+  <p class="section-body">Excel is the right tool here because M&A deal models are fundamentally auditable arithmetic. Five tabs: Inputs, Calculations, Sources &amp; Uses, Sensitivity, and Leverage. Click any tab below to preview the actual data.</p>
+
+  <div class="exhibit-frame">
+    <div class="exhibit-label"><span>SOURCES-USES-MODEL.XLSX - CLICK ANY TAB TO PREVIEW</span><span>388 FORMULAS · 0 ERRORS · 5 SHEETS</span></div>
+    <div class="exhibit-inner">
+      <div class="excel-meta">
+        <div class="excel-stat"><div class="excel-stat-label">Equity Purchase Price</div><div class="excel-stat-val">₹76,657 Cr</div></div>
+        <div class="excel-stat"><div class="excel-stat-label">Year 1 Accretion / Dilution</div><div class="excel-stat-val" style="color:var(--red)">-9.87%</div></div>
+        <div class="excel-stat"><div class="excel-stat-label">Pro Forma Leverage</div><div class="excel-stat-val" style="color:var(--amber)">8.97x ⚠</div></div>
+      </div>
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab(event,'inputs')">⚙ Inputs</button>
+        <button class="tab-btn" onclick="showTab(event,'calcs')">Calculations</button>
+        <button class="tab-btn" onclick="showTab(event,'su')">Sources &amp; Uses</button>
+        <button class="tab-btn" onclick="showTab(event,'sens')">Sensitivity</button>
+        <button class="tab-btn" onclick="showTab(event,'lev')">Leverage</button>
+      </div>
+
+      <div id="tab-inputs" class="tab-content active">
+        <table class="dt">
+          <tr><td colspan="2" class="sec-div">ACQUIRER - KOTAK MAHINDRA BANK LTD</td></tr>
+          <tr><td>Net Profit FY2026 (₹ Cr)</td><td class="r">₹19,288.00</td></tr>
+          <tr><td>Shares Outstanding (Crore)</td><td class="r">198.86</td></tr>
+          <tr><td>Share Price (₹) &nbsp;<span style="color:var(--blue);font-size:9px">LIVE via Power Query</span></td><td class="r">₹2,050.00</td></tr>
+          <tr><td>Cash &amp; Equivalents (₹ Cr)</td><td class="r">₹12,500.00</td></tr>
+          <tr><td>PPOP / Pre-Provision Operating Profit (₹ Cr)</td><td class="r">₹24,800.00</td></tr>
+          <tr><td>Existing Net Borrowings (₹ Cr)</td><td class="r">₹1,85,000.00</td></tr>
+          <tr><td colspan="2" class="sec-div">TARGET - IDFC FIRST BANK LTD</td></tr>
+          <tr><td>Net Profit FY2026 (₹ Cr)</td><td class="r">₹1,636.00</td></tr>
+          <tr><td>Shares Outstanding (Crore)</td><td class="r">860.83</td></tr>
+          <tr><td>Share Price (₹) &nbsp;<span style="color:var(--blue);font-size:9px">LIVE via Power Query</span></td><td class="r">₹68.50</td></tr>
+          <tr><td>PPOP (₹ Cr)</td><td class="r">₹4,800.00</td></tr>
+          <tr><td>Existing Net Borrowings (₹ Cr)</td><td class="r">₹48,354.00</td></tr>
+          <tr><td colspan="2" class="sec-div">DEAL STRUCTURE</td></tr>
+          <tr><td>Offer Premium (%)</td><td class="r">30.00%</td></tr>
+          <tr><td>% Consideration in Cash</td><td class="r">60.00%</td></tr>
+          <tr><td>% Cash funded by New Debt</td><td class="r">70.00%</td></tr>
+          <tr><td>New Debt Interest Rate (% p.a.)</td><td class="r">7.50%</td></tr>
+          <tr><td>Foregone Yield on Cash Used (% p.a.)</td><td class="r">6.50%</td></tr>
+          <tr><td>Acquirer Effective Tax Rate (%)</td><td class="r">25.17%</td></tr>
+          <tr><td>Integration / Transaction Costs (₹ Cr)</td><td class="r">₹850.00</td></tr>
+          <tr><td colspan="2" class="sec-div">SYNERGIES</td></tr>
+          <tr><td>Run-Rate Annual Synergies (₹ Cr, pre-tax)</td><td class="r">₹2,200.00</td></tr>
+          <tr><td>Synergy Ramp Y1 / Y2 / Y3 / Y4 / Y5</td><td class="r">15% / 40% / 70% / 90% / 100%</td></tr>
+          <tr><td>Net Borrowings / PPOP Covenant Threshold (x)</td><td class="amb">8.00x</td></tr>
+        </table>
+      </div>
+
+      <div id="tab-calcs" class="tab-content">
+        <table class="dt">
+          <tr><th>Metric</th><th class="r">Standalone</th><th class="r">Year 1</th><th class="r">Year 2</th><th class="r">Year 3</th><th class="r">Year 4</th><th class="r">Year 5</th></tr>
+          <tr><td class="muted">Equity Purchase Price (₹ Cr)</td><td class="r">-</td><td class="r">₹76,657</td><td class="r">₹76,657</td><td class="r">₹76,657</td><td class="r">₹76,657</td><td class="r">₹76,657</td></tr>
+          <tr><td class="muted">New Debt Raised (₹ Cr)</td><td class="r">-</td><td class="r">₹32,196</td><td class="r">₹32,196</td><td class="r">₹32,196</td><td class="r">₹32,196</td><td class="r">₹32,196</td></tr>
+          <tr><td class="muted">After-Tax Synergies (₹ Cr)</td><td class="r">-</td><td class="pos">₹247</td><td class="pos">₹659</td><td class="pos">₹1,152</td><td class="pos">₹1,482</td><td class="pos">₹1,646</td></tr>
+          <tr><td class="muted">After-Tax Financing Drag (₹ Cr)</td><td class="r">-</td><td class="neg">₹2,478</td><td class="neg">₹2,478</td><td class="neg">₹2,478</td><td class="neg">₹2,478</td><td class="neg">₹2,478</td></tr>
+          <tr><td><strong>Pro Forma Net Profit (₹ Cr)</strong></td><td class="r">₹19,288</td><td class="r">₹18,693</td><td class="r">₹19,104</td><td class="r">₹19,598</td><td class="r">₹19,928</td><td class="r">₹20,092</td></tr>
+          <tr><td><strong>Pro Forma EPS (₹)</strong></td><td class="r">₹0.9699</td><td class="r">₹0.8742</td><td class="r">₹0.8935</td><td class="r">₹0.9166</td><td class="r">₹0.9320</td><td class="r">₹0.9397</td></tr>
+          <tr><td><strong>Accretion / (Dilution) %</strong></td><td class="r">-</td><td class="neg">-9.87%</td><td class="neg">-7.88%</td><td class="neg">-5.50%</td><td class="neg">-3.91%</td><td class="neg">-3.12%</td></tr>
+        </table>
+      </div>
+
+      <div id="tab-su" class="tab-content">
+        <div class="su-two">
+          <div>
+            <div class="su-lbl u">Uses of Funds</div>
+            <table class="dt">
+              <tr><th>Item</th><th class="r">₹ Crore</th></tr>
+              <tr><td>Equity Purchase Price</td><td class="r">₹76,657</td></tr>
+              <tr><td class="muted">&nbsp;&nbsp;↳ Cash Consideration</td><td class="r">₹45,994</td></tr>
+              <tr><td class="muted">&nbsp;&nbsp;↳ Stock Consideration</td><td class="r">₹30,663</td></tr>
+              <tr><td>Control Premium Paid</td><td class="r">₹17,690</td></tr>
+              <tr><td>Integration &amp; Transaction Costs</td><td class="r">₹850</td></tr>
+              <tr><td><strong>TOTAL USES</strong></td><td class="r"><strong>₹77,507</strong></td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="su-lbl s">Sources of Funds</div>
+            <table class="dt">
+              <tr><th>Item</th><th class="r">₹ Crore</th></tr>
+              <tr><td>New Debt Raised</td><td class="r">₹32,196</td></tr>
+              <tr><td>Balance-Sheet Cash Used</td><td class="r">₹13,798</td></tr>
+              <tr><td>New Equity Issued (Stock Consid.)</td><td class="r">₹30,663</td></tr>
+              <tr><td>Integration Costs (cash-funded)</td><td class="r">₹850</td></tr>
+              <tr><td><strong>TOTAL SOURCES</strong></td><td class="r"><strong>₹77,507</strong></td></tr>
+            </table>
+            <div class="su-check">✔ CHECK: Sources - Uses = ₹0 Cr</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-sens" class="tab-content">
+        <p style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:12px">Year 1 Accretion / (Dilution) % · Offer Premium × % Cash · <span style="color:var(--amber)">🟡 = base case</span></p>
+        <div style="overflow-x:auto">
+          <table class="dt" style="font-size:10px">
+            <tr><th>Premium ↓ / Cash →</th><th class="r">0%</th><th class="r">20%</th><th class="r">40%</th><th class="r">60%</th><th class="r">80%</th><th class="r">100%</th></tr>
+            <tr><td>15%</td><td class="r" style="color:var(--muted)">-5.9%</td><td class="neg">-6.6%</td><td class="neg">-7.2%</td><td class="neg">-7.9%</td><td class="neg">-8.5%</td><td class="neg">-9.2%</td></tr>
+            <tr><td>20%</td><td class="neg">-6.9%</td><td class="neg">-7.5%</td><td class="neg">-8.2%</td><td class="neg">-8.9%</td><td class="neg">-9.5%</td><td class="neg">-10.2%</td></tr>
+            <tr><td>25%</td><td class="neg">-7.9%</td><td class="neg">-8.5%</td><td class="neg">-9.1%</td><td class="neg">-9.8%</td><td class="neg">-10.4%</td><td class="neg">-11.1%</td></tr>
+            <tr style="background:#FFF9E6"><td style="color:var(--amber);font-weight:700">30% 🟡</td><td class="neg">-8.8%</td><td class="neg">-9.2%</td><td class="neg">-9.5%</td><td class="neg" style="outline:2px solid var(--amber);outline-offset:-2px;font-weight:700">-9.9%</td><td class="neg">-10.3%</td><td class="neg">-10.6%</td></tr>
+            <tr><td>35%</td><td class="neg">-9.7%</td><td class="neg">-10.1%</td><td class="neg">-10.5%</td><td class="neg">-10.9%</td><td class="neg">-11.3%</td><td class="neg">-11.7%</td></tr>
+            <tr><td>40%</td><td class="neg">-10.6%</td><td class="neg">-11.0%</td><td class="neg">-11.4%</td><td class="neg">-11.8%</td><td class="neg">-12.2%</td><td class="neg">-12.6%</td></tr>
+            <tr><td>45%</td><td class="neg">-11.4%</td><td class="neg">-11.8%</td><td class="neg">-12.2%</td><td class="neg">-12.6%</td><td class="neg">-13.0%</td><td class="neg">-13.5%</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="tab-lev" class="tab-content">
+        <table class="dt" style="margin-bottom:20px">
+          <tr><td colspan="2" class="sec-div">PRO FORMA LEVERAGE BUILD</td></tr>
+          <tr><td>Acquirer Existing Net Borrowings (₹ Cr)</td><td class="r">₹1,85,000</td></tr>
+          <tr><td>(+) New Debt Raised (₹ Cr)</td><td class="r">₹32,196</td></tr>
+          <tr><td>(+) Target Existing Net Borrowings (₹ Cr)</td><td class="r">₹48,354</td></tr>
+          <tr><td><strong>Pro Forma Net Borrowings (₹ Cr)</strong></td><td class="r"><strong>₹2,65,550</strong></td></tr>
+          <tr><td>Pro Forma PPOP (₹ Cr)</td><td class="r">₹29,600</td></tr>
+          <tr><td><strong>Pro Forma Leverage Ratio (x)</strong></td><td class="amb"><strong>8.97x</strong></td></tr>
+          <tr><td>Covenant Threshold (x)</td><td class="r">8.00x</td></tr>
+          <tr><td><strong>Headroom (x)</strong></td><td class="neg"><strong>-0.97x ⚠ BREACH AT CLOSE</strong></td></tr>
+        </table>
+        <table class="dt">
+          <tr><th>5-Year Deleveraging (12% PPOP Growth · 5% Debt Amortisation)</th><th class="r">PPOP</th><th class="r">Net Debt</th><th class="r">Leverage</th><th class="r">Headroom</th></tr>
+          <tr><td>Year 0 (Close)</td><td class="r">₹29,600 Cr</td><td class="r">₹2,65,550 Cr</td><td class="amb">8.97x</td><td class="neg">-0.97x</td></tr>
+          <tr><td>Year 1</td><td class="r">₹33,152 Cr</td><td class="r">₹2,52,272 Cr</td><td class="amb">7.61x</td><td class="pos">+0.39x</td></tr>
+          <tr><td>Year 2</td><td class="r">₹37,130 Cr</td><td class="r">₹2,39,659 Cr</td><td class="r">6.45x</td><td class="pos">+1.55x</td></tr>
+          <tr><td>Year 3</td><td class="r">₹41,586 Cr</td><td class="r">₹2,27,676 Cr</td><td class="r">5.47x</td><td class="pos">+2.53x</td></tr>
+          <tr><td>Year 4</td><td class="r">₹46,576 Cr</td><td class="r">₹2,16,292 Cr</td><td class="r">4.64x</td><td class="pos">+3.36x</td></tr>
+          <tr><td>Year 5</td><td class="r">₹52,165 Cr</td><td class="r">₹2,05,477 Cr</td><td class="r">3.94x</td><td class="pos">+4.06x</td></tr>
+        </table>
+      </div>
+
+      <a href="Sources-Uses-Model.xlsx" download class="dl-btn">↓ &nbsp; Download Sources-Uses-Model.xlsx</a>
+    </div>
+  </div>
+</div></div>
+
+<!-- MODULE B -->
+<div id="desk" style="background:var(--surface);border-top:1px solid var(--border)"><div class="section">
+  <div class="section-eyebrow">Module B</div>
+  <h2 class="section-title">The Desk View</h2>
+  <div class="section-tool-badge" style="background:#E3EEFF;color:#1F3864;">Built in Microsoft Power BI · Interactive Replica</div>
+  <p class="section-body">Power BI is the right tool here because the internal deal team needs scenario-toggling analytics. Use the sliders below to scenario-test the deal in real time - this replica mirrors the Power BI dashboard's key visuals.</p>
+
+  <div class="pbi-shell">
+    <div class="pbi-topbar">
+      <strong>Kotak Mahindra Bank × IDFC First Bank - M&A Deal Economics</strong>
+      <span>Internal Desk View · Hypothetical · FY2026</span>
+    </div>
+    <div class="pbi-slicers">
+      <div class="pbi-sl-wrap">
+        <div class="pbi-sl-label">Offer Premium (%)</div>
+        <input type="range" class="pbi-range" id="pbi-prem" min="10" max="50" step="5" value="30" oninput="pbiUpdate()">
+        <div class="pbi-sl-val" id="pbi-pv">30%</div>
+      </div>
+      <div class="pbi-sl-wrap">
+        <div class="pbi-sl-label">Cash Consideration (%)</div>
+        <input type="range" class="pbi-range" id="pbi-cash" min="0" max="100" step="10" value="60" oninput="pbiUpdate()">
+        <div class="pbi-sl-val" id="pbi-cv">60%</div>
+      </div>
+      <div class="pbi-sl-wrap">
+        <div class="pbi-sl-label">Synergy Realisation Year</div>
+        <input type="range" class="pbi-range" id="pbi-syr" min="1" max="5" step="1" value="3" oninput="pbiUpdate()">
+        <div class="pbi-sl-val" id="pbi-syv">Year 3</div>
+      </div>
+      <div class="pbi-sl-wrap">
+        <div class="pbi-sl-label">Run-Rate Synergies (₹ Cr)</div>
+        <input type="range" class="pbi-range" id="pbi-syn" min="0" max="5000" step="200" value="2200" oninput="pbiUpdate()">
+        <div class="pbi-sl-val" id="pbi-snv">₹2,200 Cr</div>
+      </div>
+      <button onclick="resetPBI()" style="font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:6px 14px;border:1px solid #dde3ee;background:#fff;color:#555;cursor:pointer;align-self:flex-end;transition:all 0.15s;" onmouseover="this.style.background='#0078D4';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#555'">↺ Reset</button>
+    </div>
+    <div class="pbi-kpis">
+      <div class="pbi-kpi"><div class="pbi-kpi-label">Equity Purchase Price</div><div class="pbi-kpi-val" id="pk-epp">-</div></div>
+      <div class="pbi-kpi"><div class="pbi-kpi-label">New Debt Raised</div><div class="pbi-kpi-val" id="pk-debt">-</div></div>
+      <div class="pbi-kpi"><div class="pbi-kpi-label">A/D (Selected Year)</div><div class="pbi-kpi-val red" id="pk-ad">-</div></div>
+      <div class="pbi-kpi"><div class="pbi-kpi-label">Pro Forma Leverage</div><div class="pbi-kpi-val red" id="pk-lev">-</div></div>
+      <div class="pbi-kpi"><div class="pbi-kpi-label">Covenant Headroom</div><div class="pbi-kpi-val red" id="pk-head">-</div></div>
+    </div>
+    <div class="pbi-charts">
+      <div class="pbi-chart-card">
+        <div class="pbi-chart-header">
+          <div class="pbi-chart-title">Accretion / (Dilution) % by Year</div>
+          <button class="pbi-reset-btn" onclick="resetPBI()">↺ Reset</button>
+        </div>
+        <canvas id="pc-ad" height="180"></canvas>
+      </div>
+      <div class="pbi-chart-card">
+        <div class="pbi-chart-header">
+          <div class="pbi-chart-title">Pro Forma Net Profit vs Standalone (₹ Cr)</div>
+          <button class="pbi-reset-btn" onclick="resetPBI()">↺ Reset</button>
+        </div>
+        <canvas id="pc-ni" height="180"></canvas>
+      </div>
+      <div class="pbi-chart-card">
+        <div class="pbi-chart-header">
+          <div class="pbi-chart-title">Sources &amp; Uses - Funding Split (₹ Cr)</div>
+          <button class="pbi-reset-btn" onclick="resetPBI()">↺ Reset</button>
+        </div>
+        <canvas id="pc-su" height="180"></canvas>
+      </div>
+      <div class="pbi-chart-card">
+        <div class="pbi-chart-header">
+          <div class="pbi-chart-title">EPS Bridge - Standalone to Pro Forma</div>
+          <button class="pbi-reset-btn" onclick="resetPBI()">↺ Reset</button>
+        </div>
+        <canvas id="pc-eps" height="180"></canvas>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- MODULE C -->
+<div id="boardroom" style="border-top:1px solid var(--border)"><div class="section">
+  <div class="section-eyebrow">Module C</div>
+  <h2 class="section-title">The Boardroom View</h2>
+  <div class="section-tool-badge" style="background:#FFF3E0;color:#7F4500;">Built in Tableau Public · Live Embed</div>
+  <p class="section-body">Tableau is the right tool here because senior audiences need polished, presentation-ready exhibits - one message per view, generous whitespace. The same Excel data, redesigned for a 60-second board read.</p>
+  <div class="tab-embed-wrap">
+    <div style="background:var(--navy);padding:10px 20px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#8BAED0">Tableau Public Dashboard - Boardroom View</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--steel)">4 VIEWS · PUBLISHED TO TABLEAU PUBLIC</span>
+    </div>
+    <div class='tableauPlaceholder' id='viz1782190419253' style='position:relative'>
+      <noscript><a href='#'><img alt='Dashboard' src='https://public.tableau.com/static/images/De/Deal_Simulator_Public_final/Dashboard1/1_rss.png' style='border:none'/></a></noscript>
+      <object class='tableauViz' style='display:none;'>
+        <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F'/>
+        <param name='embed_code_version' value='3'/><param name='site_root' value=''/>
+        <param name='name' value='Deal_Simulator_Public_final/Dashboard1'/>
+        <param name='tabs' value='no'/><param name='toolbar' value='yes'/>
+        <param name='animate_transition' value='yes'/><param name='display_static_image' value='yes'/>
+        <param name='display_spinner' value='yes'/><param name='display_overlay' value='yes'/>
+        <param name='display_count' value='yes'/><param name='language' value='en-US'/>
+        <param name='filter' value='publish=yes'/>
+      </object>
+    </div>
+    <script type='text/javascript'>
+      var dE=document.getElementById('viz1782190419253');
+      var vE=dE.getElementsByTagName('object')[0];
+      vE.style.width='100%';vE.style.height='800px';
+      var sE=document.createElement('script');
+      sE.src='https://public.tableau.com/javascripts/api/viz_v1.js';
+      vE.parentNode.insertBefore(sE,vE);
+    </script>
+  </div>
+</div></div>
+
+<!-- MODULE D: SIMULATOR -->
+<div id="simulator" class="sim-section" style="border-top:1px solid var(--border)">
+<div class="section" style="padding-bottom:0">
+  <div class="section-eyebrow">Module D</div>
+  <h2 class="section-title">Run It Live</h2>
+  <div class="section-tool-badge" style="background:#FCE4D6;color:#C00000;">Hand-coded HTML / JavaScript - No licence required</div>
+  <p class="section-body">This reimplements every deal formula natively in JavaScript - no Excel, no Power BI, no Tableau. Change any slider and every output updates instantly.</p>
+</div>
+<div id="sim-inline">
+<div class="sim-main">
+  <aside>
+    <div class="panel">
+      <div class="panel-title">Quick Scenarios</div>
+      <div class="scenario-btns">
+        <button onclick="setScen('allcash')" id="b-allcash">All Cash</button>
+        <button onclick="setScen('allstock')" id="b-allstock">All Stock</button>
+        <button onclick="setScen('5050')" id="b-5050">50/50</button>
+        <button onclick="setScen('base')" id="b-base" class="active">Base</button>
+      </div>
+      <div class="panel-title" style="margin-top:8px">Deal Structure</div>
+      <div class="input-group"><div class="input-label"><span>Offer Premium</span><div class="val" id="v-prem">30.0%</div></div><input type="range" id="s-prem" min="10" max="50" step="1" value="30" oninput="simUpdate()"></div>
+      <div class="input-group"><div class="input-label"><span>% Cash Consideration</span><div class="val" id="v-cash">60.0%</div></div><input type="range" id="s-cash" min="0" max="100" step="10" value="60" oninput="simUpdate()"></div>
+      <div class="input-group"><div class="input-label"><span>% Cash via New Debt</span><div class="val" id="v-debt">70.0%</div></div><input type="range" id="s-debt" min="0" max="100" step="10" value="70" oninput="simUpdate()"></div>
+      <div class="input-group"><div class="input-label"><span>New Debt Rate (% p.a.)</span><div class="val" id="v-rate">7.5%</div></div><input type="range" id="s-rate" min="5" max="12" step="0.5" value="7.5" oninput="simUpdate()"></div>
+      <div class="input-group"><div class="input-label"><span>Run-Rate Synergies (₹ Cr)</span><div class="val" id="v-syn">2,200</div></div><input type="range" id="s-syn" min="0" max="5000" step="100" value="2200" oninput="simUpdate()"></div>
+      <div class="input-group"><div class="input-label"><span>Tax Rate</span><div class="val" id="v-tax">25.2%</div></div><input type="range" id="s-tax" min="15" max="35" step="0.5" value="25.17" oninput="simUpdate()"></div>
+      <button onclick="resetSim()" style="width:100%;margin-top:8px;padding:8px;font-family:var(--mono);font-size:10px;letter-spacing:1px;border:1px solid var(--border);background:var(--bg);color:var(--navy);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--navy');this.style.color='#fff'" onmouseout="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--bg');this.style.color=getComputedStyle(document.documentElement).getPropertyValue('--navy')">↺ Reset to Base Case</button>
+      <div class="panel-title" style="margin-top:16px">Fixed Inputs (FY2026)</div>
+      <table style="width:100%;font-family:var(--mono);font-size:10px;border-collapse:collapse">
+        <tr><td style="padding:3px 0;color:var(--muted)">Kotak Net Profit</td><td style="text-align:right;color:var(--navy);font-weight:700">₹19,288 Cr</td></tr>
+        <tr><td style="padding:3px 0;color:var(--muted)">Kotak Shares / Price</td><td style="text-align:right;color:var(--navy);font-weight:700">198.86 / ₹2,050</td></tr>
+        <tr><td style="padding:3px 0;color:var(--muted)">IDFC Net Profit</td><td style="text-align:right;color:var(--navy);font-weight:700">₹1,636 Cr</td></tr>
+        <tr><td style="padding:3px 0;color:var(--muted)">IDFC Shares / Price</td><td style="text-align:right;color:var(--navy);font-weight:700">860.83 / ₹68.50</td></tr>
+        <tr><td style="padding:3px 0;color:var(--muted)">Covenant</td><td style="text-align:right;color:var(--navy);font-weight:700">8.00x</td></tr>
+      </table>
+    </div>
+  </aside>
+  <div class="right-col">
+    <div class="kpi-strip">
+      <div class="kpi"><div class="kpi-label">Equity Purchase Price</div><div class="kpi-value" id="kpi-epp">-</div><div class="kpi-unit">₹ Crore</div></div>
+      <div class="kpi"><div class="kpi-label">New Debt Raised</div><div class="kpi-value" id="kpi-debt">-</div><div class="kpi-unit">₹ Crore</div></div>
+      <div class="kpi"><div class="kpi-label">Pro Forma Shares</div><div class="kpi-value" id="kpi-pfsh">-</div><div class="kpi-unit">Crore</div></div>
+      <div class="kpi"><div class="kpi-label">Year 1 A/D</div><div class="kpi-value" id="kpi-ad1">-</div><div class="kpi-unit">vs Standalone EPS</div></div>
+      <div class="kpi"><div class="kpi-label">Leverage Ratio</div><div class="kpi-value" id="kpi-lev">-</div><div class="kpi-unit">Net Debt / PPOP</div></div>
+    </div>
+    <div class="su-container">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="panel-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0">Sources &amp; Uses - Live Schematic</div>
+        <button onclick="resetSim()" class="reset-btn">↺ Reset</button>
+      </div>
+      <svg id="su-svg" viewBox="0 0 800 150" style="width:100%;height:150px;"></svg>
+    </div>
+    <div class="charts-grid">
+      <div class="panel">
+        <div class="chart-panel-header">
+          <div class="panel-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0">Accretion / (Dilution) % by Year</div>
+          <button onclick="resetSim()" class="reset-btn">↺ Reset</button>
+        </div>
+        <canvas id="c-ad" height="200"></canvas>
+      </div>
+      <div class="panel">
+        <div class="chart-panel-header">
+          <div class="panel-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0">Pro Forma Net Profit (₹ Cr)</div>
+          <button onclick="resetSim()" class="reset-btn">↺ Reset</button>
+        </div>
+        <canvas id="c-ni" height="200"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="panel-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0">Leverage &amp; Covenant Headroom</div>
+        <button onclick="resetSim()" class="reset-btn">↺ Reset</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:4px"><span>0x</span><span>6x</span><span style="color:var(--red)">Covenant: 8x</span><span>12x</span></div>
+      <div class="lev-bar-bg"><div class="lev-bar-fill" id="lev-fill"></div><div class="lev-bar-threshold" style="left:66.67%"></div></div>
+      <div class="lev-label"><span>Pro Forma Net Borrowings / PPOP</span><span id="lev-lbl">-</span></div>
+      <div id="lev-status"></div>
+    </div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="panel-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0">Year 1 Sensitivity - Premium × Cash % &nbsp;<span style="color:var(--amber);font-size:9px">🟡 current</span></div>
+        <button onclick="resetSim()" class="reset-btn">↺ Reset</button>
+      </div>
+      <div style="overflow-x:auto"><table class="heatmap" id="heatmap"></table></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- DATA FLOW -->
+<div id="flow" style="border-top:1px solid var(--border)"><div class="section">
+  <div class="section-eyebrow">Architecture</div>
+  <h2 class="section-title">How It Fits Together</h2>
+  <p class="section-body">Each tool connects to the same source of truth - the Excel OutputTable named range - but consumes it differently for its own audience.</p>
+  <div class="flow">
+    <div class="flow-step"><div class="flow-num">01</div><div class="flow-tool">Excel</div><div class="flow-desc">All assumptions in Inputs tab. Named range <code style="font-family:var(--mono);font-size:11px;color:var(--blue)">OutputTable</code> exports 15 metrics × 5 years - the single source of truth.</div></div>
+    <div class="flow-step"><div class="flow-num">02</div><div class="flow-tool">Power BI</div><div class="flow-desc">Connects via Power Query. What-If Parameters and DAX measures run scenario analysis. Published for the internal deal team.</div></div>
+    <div class="flow-step"><div class="flow-num">03</div><div class="flow-tool">Tableau</div><div class="flow-desc">Connects to the same OutputTable independently. Board-presentation polish. Published to Tableau Public.</div></div>
+    <div class="flow-step"><div class="flow-num">04</div><div class="flow-tool">HTML / JS</div><div class="flow-desc">Reimplements every formula in vanilla JavaScript. No external dependency. Works offline. The guaranteed fallback.</div></div>
+  </div>
+</div></div>
+
+<footer>
+  <p>SOURCES &amp; USES - AN INTEGRATED M&amp;A DECISION PLATFORM</p>
+  <p>Kotak Mahindra Bank × IDFC First Bank &nbsp;|&nbsp; Hypothetical / Illustrative &nbsp;|&nbsp; FY2026 Actuals</p>
+  <p style="margin-top:8px">Module A: Excel &nbsp;·&nbsp; Module B: Power BI &nbsp;·&nbsp; Module C: Tableau &nbsp;·&nbsp; Module D: HTML Simulator &nbsp;·&nbsp; Module E: This Site</p>
+</footer>
+
+<script>
+// ── Tab switching ──────────────────────────────────────────────────────────
+function showTab(e,id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  e.target.classList.add('active');
+}
+
+// ── Core deal engine ───────────────────────────────────────────────────────
+const C={acqNI:19288,acqSH:198.86,acqPX:2050,acqPPOP:24800,acqDebt:185000,
+  tgtNI:1636,tgtSH:860.83,tgtPX:68.50,tgtPPOP:4800,tgtDebt:48354,
+  foreYld:0.065,covenant:8.0,ramps:[0.15,0.40,0.70,0.90,1.00],integCost:850};
+
+function dc(prem,cashPct,debtPct,debtRate,synRR,taxRate){
+  const EPP=C.tgtPX*(1+prem)*C.tgtSH;
+  const cashC=EPP*cashPct,stkC=EPP*(1-cashPct);
+  const newDebt=cashC*debtPct,bsCash=cashC*(1-debtPct);
+  const newSH=stkC/C.acqPX,pfSH=C.acqSH+newSH;
+  const drag=(newDebt*debtRate+bsCash*C.foreYld)*(1-taxRate);
+  const saEPS=C.acqNI/(C.acqSH*100);
+  const pfNI=C.ramps.map(r=>C.acqNI+C.tgtNI+synRR*r*(1-taxRate)-drag);
+  const pfEPS=pfNI.map(n=>n/(pfSH*100));
+  const ad=pfEPS.map(e=>(e-saEPS)/saEPS);
+  const pfDebt=C.acqDebt+newDebt+C.tgtDebt;
+  const pfPPOP=C.acqPPOP+C.tgtPPOP;
+  const levRatio=pfDebt/pfPPOP;
+  return{EPP,cashC,stkC,newDebt,bsCash,newSH,pfSH,drag,pfNI,pfEPS,ad,pfDebt,pfPPOP,levRatio,headroom:C.covenant-levRatio,saEPS};
+}
+
+const YEARS=['Y1','Y2','Y3','Y4','Y5'];
+const BASE={prem:30,cash:60,debt:70,rate:7.5,syn:2200,tax:25.17,syr:3};
+
+// ── PBI Charts ─────────────────────────────────────────────────────────────
+let pbiAD,pbiNI,pbiSU,pbiEPS;
+function initPBICharts(){
+  const lo=(pct)=>({responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>pct?(c.parsed.y>=0?'+':'')+(c.parsed.y*100).toFixed(2)+'%':'₹'+c.parsed.y.toFixed(0)+' Cr'}}},
+    scales:{x:{grid:{color:'#eef2f8'},ticks:{font:{size:9}}},y:{grid:{color:'#eef2f8'},ticks:{font:{size:9},
+      callback:v=>pct?(v*100).toFixed(0)+'%':'₹'+(v/1000).toFixed(0)+'K'}}}});
+  pbiAD=new Chart(document.getElementById('pc-ad'),{type:'line',
+    data:{labels:YEARS,datasets:[{data:[],borderColor:'#0078D4',backgroundColor:'rgba(0,120,212,0.08)',borderWidth:2,pointRadius:3,tension:0.4,fill:true}]},options:lo(true)});
+  pbiNI=new Chart(document.getElementById('pc-ni'),{type:'bar',
+    data:{labels:['SA',...YEARS],datasets:[{data:[],backgroundColor:['#0078D4','#1990D8','#32A8F0','#5BBEF5','#84D4FF','#AADDFF'],borderWidth:0,borderRadius:2}]},options:lo(false)});
+  pbiSU=new Chart(document.getElementById('pc-su'),{type:'bar',
+    data:{labels:['New Debt','BS Cash','New Equity','Int.Costs'],datasets:[{data:[],backgroundColor:['#0078D4','#2B88D8','#71AFE5','#C7E0F4'],borderWidth:0,borderRadius:2}]},options:lo(false)});
+  pbiEPS=new Chart(document.getElementById('pc-eps'),{type:'bar',
+    data:{labels:['SA EPS','+ Target','+ Syn','- Fin','PF EPS'],datasets:[{data:[],backgroundColor:['#0078D4','#107C10','#107C10','#C00000','#0078D4'],borderWidth:0,borderRadius:2}]},options:lo(false)});
+}
+
+function pbiUpdate(){
+  const prem=parseFloat(document.getElementById('pbi-prem').value)/100;
+  const cashPct=parseFloat(document.getElementById('pbi-cash').value)/100;
+  const synYr=parseInt(document.getElementById('pbi-syr').value);
+  const synRR=parseFloat(document.getElementById('pbi-syn').value);
+  const taxRate=0.2517,debtPct=0.70,debtRate=0.075;
+  document.getElementById('pbi-pv').textContent=(prem*100).toFixed(0)+'%';
+  document.getElementById('pbi-cv').textContent=(cashPct*100).toFixed(0)+'%';
+  document.getElementById('pbi-syv').textContent='Year '+synYr;
+  document.getElementById('pbi-snv').textContent='₹'+synRR.toLocaleString('en-IN')+' Cr';
+  const r=dc(prem,cashPct,debtPct,debtRate,synRR,taxRate);
+  const adSel=r.ad[synYr-1];
+  document.getElementById('pk-epp').textContent='₹'+(r.EPP/1000).toFixed(0)+'K Cr';
+  document.getElementById('pk-debt').textContent='₹'+(r.newDebt/1000).toFixed(0)+'K Cr';
+  const adEl=document.getElementById('pk-ad');
+  adEl.textContent=(adSel>=0?'+':'')+(adSel*100).toFixed(2)+'%';
+  adEl.className='pbi-kpi-val '+(adSel>=0?'grn':'red');
+  document.getElementById('pk-lev').textContent=r.levRatio.toFixed(2)+'x';
+  document.getElementById('pk-lev').className='pbi-kpi-val '+(r.headroom<0?'red':'grn');
+  const hEl=document.getElementById('pk-head');
+  hEl.textContent=(r.headroom>=0?'+':'')+r.headroom.toFixed(2)+'x';
+  hEl.className='pbi-kpi-val '+(r.headroom<0?'red':'grn');
+  if(pbiAD){
+    pbiAD.data.datasets[0].data=r.ad;pbiAD.update('none');
+    pbiNI.data.datasets[0].data=[C.acqNI,...r.pfNI];pbiNI.update('none');
+    pbiSU.data.datasets[0].data=[r.newDebt,r.bsCash,r.stkC,C.integCost];pbiSU.update('none');
+    const saEPS=r.saEPS,tgt=C.tgtNI/(r.pfSH*100),syn=synRR*C.ramps[synYr-1]*(1-taxRate)/(r.pfSH*100),fin=-r.drag/(r.pfSH*100),pfE=r.pfEPS[synYr-1];
+    pbiEPS.data.datasets[0].data=[saEPS,tgt,syn,fin,pfE];pbiEPS.update('none');
+  }
+}
+
+function resetPBI(){
+  document.getElementById('pbi-prem').value=BASE.prem;
+  document.getElementById('pbi-cash').value=BASE.cash;
+  document.getElementById('pbi-syr').value=BASE.syr;
+  document.getElementById('pbi-syn').value=BASE.syn;
+  pbiUpdate();
+}
+
+// ── Simulator Charts ───────────────────────────────────────────────────────
+let cAD,cNI;
+function initSimCharts(){
+  Chart.register({id:'zl',afterDraw(ch){
+    if(ch.canvas.id!=='c-ad')return;
+    const{ctx,chartArea:{left,right},scales:{y}}=ch;
+    const z=y.getPixelForValue(0);
+    ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='#C00000';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(left,z);ctx.lineTo(right,z);ctx.stroke();
+    ctx.fillStyle='#C00000';ctx.font='9px Courier New';ctx.fillText('Breakeven',left+4,z-4);
+    ctx.restore();
+  }});
+  const darkOpts=(pct)=>({responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>pct?(c.parsed.y>=0?'+':'')+(c.parsed.y*100).toFixed(2)+'%':'₹'+c.parsed.y.toFixed(0)+' Cr'}}},
+    scales:{x:{grid:{color:'#E8EEF7'},ticks:{font:{family:'Courier New',size:10}}},
+      y:{grid:{color:'#E8EEF7'},ticks:{font:{family:'Courier New',size:10},callback:v=>pct?(v>=0?'+':'')+(v*100).toFixed(1)+'%':'₹'+(v/1000).toFixed(0)+'K'}}}});
+  cAD=new Chart(document.getElementById('c-ad'),{type:'line',
+    data:{labels:YEARS,datasets:[{data:[],borderColor:'#1F3864',backgroundColor:'rgba(31,56,100,0.08)',borderWidth:2,pointRadius:5,pointBackgroundColor:'#1F3864',tension:0.3,fill:true}]},
+    options:darkOpts(true)});
+  cNI=new Chart(document.getElementById('c-ni'),{type:'bar',
+    data:{labels:YEARS,datasets:[{data:[],backgroundColor:['#1F3864','#2E5F8A','#4A7BAB','#375623','#5A8A3F'],borderWidth:0,borderRadius:3}]},
+    options:darkOpts(false)});
+}
+
+function drawSU(res){
+  const svg=document.getElementById('su-svg');
+  const uT=res.EPP+C.integCost,sT=res.newDebt+res.bsCash+res.stkC+C.integCost;
+  const mW=330,bH=42,bY=46;
+  const uses=[{l:'Equity Purchase Price',v:res.EPP,c:'#1F3864'},{l:'Integration',v:C.integCost,c:'#2E5F8A'}];
+  const srcs=[{l:'New Debt',v:res.newDebt,c:'#375623'},{l:'BS Cash',v:res.bsCash,c:'#5A8A3F'},{l:'New Equity',v:res.stkC,c:'#8ABF6A'},{l:'Int.',v:C.integCost,c:'#A8D08D'}];
+  let h=`<text x="20" y="34" font-family="Courier New" font-size="10" fill="#1F3864" letter-spacing="2" font-weight="700">USES</text>
+    <text x="430" y="34" font-family="Courier New" font-size="10" fill="#375623" letter-spacing="2" font-weight="700">SOURCES</text>`;
+  let ux=20;
+  uses.forEach(u=>{const w=(u.v/uT)*mW;h+=`<rect x="${ux}" y="${bY}" width="${w}" height="${bH}" fill="${u.c}" rx="1"/>`;if(w>50)h+=`<text x="${ux+w/2}" y="${bY+bH/2+4}" text-anchor="middle" font-family="Courier New" font-size="9" fill="white">₹${(u.v/1000).toFixed(0)}K</text>`;ux+=w;});
+  let sx=430;
+  srcs.forEach(s=>{if(s.v<=0)return;const w=(s.v/sT)*mW;h+=`<rect x="${sx}" y="${bY}" width="${w}" height="${bH}" fill="${s.c}" rx="1"/>`;if(w>40)h+=`<text x="${sx+w/2}" y="${bY+bH/2+4}" text-anchor="middle" font-family="Courier New" font-size="9" fill="white">₹${(s.v/1000).toFixed(0)}K</text>`;sx+=w;});
+  const ck=sT-uT,cc=Math.abs(ck)<1?'#375623':'#C00000';
+  h+=`<text x="400" y="132" text-anchor="middle" font-family="Courier New" font-size="10" fill="${cc}">CHECK: Sources - Uses = ₹${ck.toFixed(0)} Cr ${Math.abs(ck)<1?'✔':'✘'}</text>`;
+  svg.innerHTML=h;
+}
+
+function buildHM(cP,cC,dP,dR,syn,tax){
+  const prems=[0.15,0.20,0.25,0.30,0.35,0.40,0.45],cashs=[0,0.2,0.4,0.6,0.8,1.0];
+  let h='<thead><tr><th>Prem↓/Cash→</th>';
+  cashs.forEach(c=>h+=`<th>${(c*100).toFixed(0)}%</th>`);
+  h+='</tr></thead><tbody>';
+  prems.forEach(p=>{
+    h+=`<tr><td>${(p*100).toFixed(0)}%</td>`;
+    cashs.forEach(c=>{
+      const r=dc(p,c,dP,dR,syn,tax),ad=r.ad[0];
+      const t=Math.max(0,Math.min(1,(ad+0.2)/0.25));
+      const R=Math.round(244-t*(244-183)),G=Math.round(204+t*(225-204));
+      const isCurr=Math.abs(p-cP)<0.01&&Math.abs(c-cC)<0.01;
+      h+=`<td style="background:rgb(${R},${G},204);color:#333" class="${isCurr?'current-cell':''}">${ad>=0?'+':''}${(ad*100).toFixed(1)}%</td>`;
+    });h+='</tr>';
+  });
+  document.getElementById('heatmap').innerHTML=h+'</tbody>';
+}
+
+function simUpdate(){
+  const prem=parseFloat(document.getElementById('s-prem').value)/100;
+  const cashPct=parseFloat(document.getElementById('s-cash').value)/100;
+  const debtPct=parseFloat(document.getElementById('s-debt').value)/100;
+  const debtRate=parseFloat(document.getElementById('s-rate').value)/100;
+  const synRR=parseFloat(document.getElementById('s-syn').value);
+  const taxRate=parseFloat(document.getElementById('s-tax').value)/100;
+  document.getElementById('v-prem').textContent=(prem*100).toFixed(1)+'%';
+  document.getElementById('v-cash').textContent=(cashPct*100).toFixed(1)+'%';
+  document.getElementById('v-debt').textContent=(debtPct*100).toFixed(1)+'%';
+  document.getElementById('v-rate').textContent=(debtRate*100).toFixed(1)+'%';
+  document.getElementById('v-syn').textContent=synRR.toLocaleString('en-IN');
+  document.getElementById('v-tax').textContent=(taxRate*100).toFixed(1)+'%';
+  const res=dc(prem,cashPct,debtPct,debtRate,synRR,taxRate);
+  document.getElementById('kpi-epp').textContent='₹'+(res.EPP/1000).toFixed(1)+'K Cr';
+  document.getElementById('kpi-debt').textContent='₹'+(res.newDebt/1000).toFixed(1)+'K Cr';
+  document.getElementById('kpi-pfsh').textContent=res.pfSH.toFixed(1)+' Cr';
+  const ad1El=document.getElementById('kpi-ad1');
+  ad1El.textContent=(res.ad[0]>=0?'+':'')+(res.ad[0]*100).toFixed(2)+'%';
+  ad1El.className='kpi-value '+(res.ad[0]>=0?'pos':'neg');
+  const levEl=document.getElementById('kpi-lev');
+  levEl.textContent=res.levRatio.toFixed(2)+'x';
+  levEl.className='kpi-value '+(res.headroom<0?'neg':res.headroom<0.5?'':'pos');
+  if(cAD&&cNI){cAD.data.datasets[0].data=res.ad;cAD.update('none');cNI.data.datasets[0].data=res.pfNI;cNI.update('none');}
+  drawSU(res);
+  const mL=12,fw=Math.min(100,(res.levRatio/mL)*100);
+  const fill=document.getElementById('lev-fill');
+  fill.style.width=fw+'%';fill.style.background=res.headroom<0?'#C00000':res.headroom<0.5?'#F4B942':'#375623';
+  document.getElementById('lev-lbl').textContent=res.levRatio.toFixed(2)+'x (Covenant: 8.0x)';
+  const sEl=document.getElementById('lev-status');
+  if(res.headroom<0)sEl.innerHTML=`<span class="status-badge status-breach">✘ COVENANT BREACH - headroom: ${res.headroom.toFixed(2)}x</span>`;
+  else if(res.headroom<0.5)sEl.innerHTML=`<span class="status-badge status-watch">⚠ WATCH - headroom: ${res.headroom.toFixed(2)}x</span>`;
+  else sEl.innerHTML=`<span class="status-badge status-safe">✔ SAFE - headroom: +${res.headroom.toFixed(2)}x</span>`;
+  buildHM(prem,cashPct,debtPct,debtRate,synRR,taxRate);
+}
+
+function resetSim(){
+  document.getElementById('s-prem').value=BASE.prem;
+  document.getElementById('s-cash').value=BASE.cash;
+  document.getElementById('s-debt').value=BASE.debt;
+  document.getElementById('s-rate').value=BASE.rate;
+  document.getElementById('s-syn').value=BASE.syn;
+  document.getElementById('s-tax').value=BASE.tax;
+  document.querySelectorAll('.scenario-btns button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('b-base').classList.add('active');
+  simUpdate();
+}
+
+function setScen(s){
+  document.querySelectorAll('.scenario-btns button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('b-'+s).classList.add('active');
+  const sc={allcash:[30,100,70,7.5,2200,25.17],allstock:[30,0,0,7.5,2200,25.17],'5050':[30,50,70,7.5,2200,25.17],base:[30,60,70,7.5,2200,25.17]};
+  const[p,ca,d,r,sy,t]=sc[s];
+  document.getElementById('s-prem').value=p;document.getElementById('s-cash').value=ca;
+  document.getElementById('s-debt').value=d;document.getElementById('s-rate').value=r;
+  document.getElementById('s-syn').value=sy;document.getElementById('s-tax').value=t;
+  simUpdate();
+}
+
+window.addEventListener('load',()=>{
+  initPBICharts();
+  initSimCharts();
+  pbiUpdate();
+  simUpdate();
+});
+</script>
+</body>
+</html>
